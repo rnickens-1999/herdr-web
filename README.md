@@ -89,9 +89,15 @@ Choosing a different port
 
     HERDR_WEB_PORT=8445 bash scripts/install.sh
 
+  or, to make it stick for this machine, put it in an untracked .env at the
+  repo root (see .env.example):
+
+    echo 'HERDR_WEB_PORT=8445' > .env
+
   Avoid 443, 8443 and 10000 — those are the ports Funnel can publish to the
   internet, and staying off them is what keeps this shell tailnet-only.
-  Pass the same HERDR_WEB_PORT every time you re-run the installer.
+  If you use the environment variable instead of .env, pass the same value
+  every time you re-run the installer.
 
 Debian / Ubuntu notes
 ---------------------

@@ -18,7 +18,16 @@ set -euo pipefail
 BUNDLE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
 PORT=7681          # ttyd, loopback only
+# Per-machine settings may live in an untracked .env at the repo root
+# (see .env.example). Only HERDR_WEB_PORT is read, and the file is parsed, not
+# sourced. A value already in the environment wins.
+if [ -z "${HERDR_WEB_PORT:-}" ] && [ -f "$BUNDLE_DIR/.env" ]; then
+  HERDR_WEB_PORT="$(sed -n "s/^[[:space:]]*HERDR_WEB_PORT[[:space:]]*=[[:space:]]*[\"']\{0,1\}\([^\"'[:space:]#]*\).*/\1/p" "$BUNDLE_DIR/.env" | tail -1)"
+fi
 TAILNET_PORT="${HERDR_WEB_PORT:-8444}"  # see the comment in the tailscale serve section — load-bearing
+case "$TAILNET_PORT" in
+  ''|*[!0-9]*) echo "HERDR_WEB_PORT must be a port number, got: '$TAILNET_PORT'" >&2; exit 1 ;;
+esac
 SHARE_DIR="$HOME/.local/share/herdr-web"
 
 # Pinned deliberately. The browser loads nothing from the network at runtime
